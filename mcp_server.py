@@ -7,21 +7,31 @@ import http.client
 import json
 from dotenv import load_dotenv
 import os
+import httpx
+import asyncio
+
 load_dotenv()
 
+
+SERPER_URL="https://google.serper.dev/search"
 query="hello"
-def search_web(query) -> dict | None:
-    conn = http.client.HTTPSConnection("google.serper.dev")
-    payload = json.dumps({
-    "q": query, "num":2
-    })
+
+async def search_web(query) -> dict | None:
     headers = {
     'X-API-KEY': os.getenv("SERPER_API_KEY"),
     'Content-Type': 'application/json'
     }
-    conn.request("POST", "/search", payload, headers)
-    res = conn.getresponse()
-    data = res.read()
-    return data.decode("utf-8")
+    payload = json.dumps({
+    "q": query, "num":2
+    })
 
-print(search_web(query))
+    async with httpx.AsyncClient() as client:
+        
+        response=await client.post(
+            SERPER_URL,headers=headers,data=payload,timeout=30.0
+        )
+        response.raise_for_status()
+        return response.json()
+    
+res=asyncio.run(search_web(query))
+print(res)
