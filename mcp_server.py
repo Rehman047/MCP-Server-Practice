@@ -52,13 +52,21 @@ docs_urls = {
 async def get_docs(query:str,library:str):
     if library not in docs_urls.keys():
         raise ValueError("unkown")
+
     new_query=f"site:{docs_urls[library]} {query}"
 
     results=await search_web(new_query)
 
     if len(results) == 0:
         return "Nothing"
-
+    texts=[]
+    for result in results['organic']:
+        link=result.get("link","default")
+        page_text=await fetch_url(link)
+        if page_text:
+            labelled_page_text=f"SOURCE {link} \n {page_text}"
+            texts.append(labelled_page_text)
+    return "\n\n".join(texts)
 
 
 
