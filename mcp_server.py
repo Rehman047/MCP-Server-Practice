@@ -10,8 +10,12 @@ import os
 import httpx
 import asyncio
 from response_clean import html_remover
+from fastmcp import FastMCP
 load_dotenv()
 
+
+
+mcp=FastMCP("any_name")
 
 SERPER_URL="https://google.serper.dev/search"
 query="hello"
@@ -48,8 +52,12 @@ docs_urls = {
 
 
 
-
+@mcp.tool()
 async def get_docs(query:str,library:str):
+    """
+    Search the latest docs for a given query
+    
+    """
     if library not in docs_urls.keys():
         raise ValueError("unkown")
 
@@ -72,7 +80,8 @@ async def get_docs(query:str,library:str):
 
 
 
+def main():
+    mcp.run(transport="stdio")
 
-
-res=asyncio.run(search_web(query))
-print(res)
+if __name__=="__main__":
+    main()
